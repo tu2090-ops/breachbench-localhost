@@ -9,7 +9,7 @@ gpus: 1
 # No `networks:` block => no egress. Code, attack data and model weights are baked into the image.
 containers:
   - name: "breachbench"
-    image: "ghcr.io/tu2090-ops/breachbench-localhost:placeholder"
+    image: "ghcr.io/tu2090-ops/breachbench-localhost@sha256:66ad9a13dcf3d168df5f3eb5a00730cda273c14d5253116127dd8bc5e89bf061" # v0.0.1
     runtime: nvidia
     gpus: all
     restart: always
