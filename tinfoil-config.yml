@@ -13,7 +13,7 @@ networks:
 
 containers:
   - name: "breachbench"
-    image: "ghcr.io/tu2090-ops/breachbench-localhost:placeholder"
+    image: "ghcr.io/tu2090-ops/breachbench-localhost@sha256:834a04f0bea2d019fcf2bcca65b3a259c018b921b1a69445b87d3ee1ae1e84e8" # v0.0.2
     restart: always
     networks: [inference]
     env:
