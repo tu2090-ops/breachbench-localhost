@@ -1,0 +1,33 @@
+# BreachBench + Ollama + qwen3:8b in ONE image for a Tinfoil GPU enclave.
+# Everything (code, attack data, model weights) is baked at build time,
+# so the enclave needs NO egress at runtime.
+FROM ollama/ollama:latest AS ollama
+
+FROM python:3.12-slim
+ENV DEBIAN_FRONTEND=noninteractive \
+    OLLAMA_MODELS=/models \
+    OLLAMA_HOST=127.0.0.1:11434 \
+    PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=ollama /usr/bin/ollama /usr/bin/ollama
+COPY --from=ollama /usr/lib/ollama /usr/lib/ollama
+
+WORKDIR /app
+COPY . /app
+RUN pip install --no-cache-dir -e .
+
+# Bake the attack suites (25 ih + 25 JBB harmful) into the image.
+RUN python scripts/hf_suite.py fetch --suite all --ih-n 25 --jbb-harmful 25 --jbb-benign 0 \
+      --seed 42 --data-dir /app/data/hf
+
+# Bake qwen3:8b weights into the image (read-only at runtime).
+RUN (ollama serve >/tmp/ollama.log 2>&1 &) && \
+    for i in $(seq 1 30); do curl -sf http://127.0.0.1:11434/api/tags && break; sleep 1; done && \
+    ollama pull qwen3:8b && pkill ollama || true
+
+COPY tinfoil/entrypoint.sh /entrypoint.sh
+COPY tinfoil/server.py /app/tinfoil_server.py
+RUN chmod +x /entrypoint.sh
+EXPOSE 8080
+ENTRYPOINT ["/entrypoint.sh"]
