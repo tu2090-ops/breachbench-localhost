@@ -1,36 +1,27 @@
-# Deploy BreachBench to a Tinfoil GPU enclave
+# Deploy BreachBench (CPU-only) to Tinfoil — v0.0.2
 
-The Spark is aarch64 and the enclave is linux/amd64, so **don't build on the Spark**. GitHub Actions builds the image.
-
-## 1. Copy files into the repo (on the Spark)
+## 1. Unpack into the repo, commit, push (Spark or Mac)
 cd ~/hackathons/localhost-nyc-2026/breachbench
-# copy in: Dockerfile.tinfoil, .dockerignore, tinfoil/server.py, tinfoil/entrypoint.sh,
-#          tinfoil-config.yml, .github/workflows/tinfoil-release.yml, .github/workflows/tinfoil-release-publish.yml
-git add -A && git commit -m "Tinfoil enclave deployment" && git push
+tar xzf ~/tinfoil-breachbench-cpu.tgz --strip-components=1
+rm -f tinfoil/entrypoint.sh
+git add -A && git commit -m "Tinfoil: CPU-only enclave, test Tinfoil inference" && git push
 
-## 2. (Optional) smoke-test the wrapper locally against your Spark Ollama
-OLLAMA_URL=$OLLAMA_HOST BB_RESULTS=/tmp/bbres python tinfoil/server.py &
-curl -s localhost:8080/health
+## 2. Release v0.0.2
+gh workflow run tinfoil-release.yml -f version=v0.0.2
+gh run watch      # wait for BOTH Tinfoil Release and Tinfoil Release - Publish
+tinfoil repo build info tu2090-ops/breachbench-localhost   # v0.0.2 published?
 
-## 3. Release (builds amd64 image -> ghcr, pins digest, tags, measures, publishes)
-gh workflow run tinfoil-release.yml -f version=v0.0.1
-gh run watch          # wait for BOTH "Tinfoil Release" and "Tinfoil Release - Publish"
-# If the ghcr package is private: make it public on GitHub (Packages > settings),
-# or: tinfoil registry set ghcr --username tu2090-ops --token <PAT read:packages>
+## 3. Inference API key as a project secret (stdin keeps it out of history)
+read -s TK && echo -n "$TK" | tinfoil repo secret create tu2090-ops/breachbench-localhost TINFOIL_API_KEY --value-file - ; unset TK
 
-## 4. Tinfoil CLI (on the Mac is easiest)
-curl -fsSL https://github.com/tinfoilsh/tinfoil-cli/raw/main/install.sh | sh
-tinfoil login            # org ADMIN key from dash.tinfoil.sh
-tinfoil whoami
-tinfoil repo build info tu2090-ops/breachbench-localhost   # confirm v0.0.1 is published
+## 4. Create the instance (if v0.0.1 GPU instance exists, delete it in dashboard or use a new name)
+tinfoil container create breachbench --repo tu2090-ops/breachbench-localhost --tag v0.0.2
 
-## 5. Create the instance
-tinfoil container create breachbench --repo tu2090-ops/breachbench-localhost --tag v0.0.1
-
-## 6. Use it via a verified (attested) proxy
+## 5. Connect and run
 tinfoil container connect breachbench -p 3301
-curl -s localhost:3301/health                      # wait for ollama_ready: true
+# second terminal:
+curl -s localhost:3301/health            # api_key_present: true
 curl -s -X POST localhost:3301/run -d '{"suite":"all","limit":25}'
-curl -s localhost:3301/health                      # running -> false, rc 0
-curl -s localhost:3301/results > enclave_qwen3_8b.json
+curl -s localhost:3301/health            # poll until running:false, rc:0
+curl -s localhost:3301/results > enclave_gemma4-31b.json
 curl -s localhost:3301/results.md

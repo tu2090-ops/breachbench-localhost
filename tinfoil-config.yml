@@ -1,25 +1,33 @@
-# Tinfoil Container config for BreachBench (+ Ollama + qwen3:8b in the same enclave).
+# Tinfoil Container config for BreachBench (CPU-only).
 # Reference: https://docs.tinfoil.sh/containers/configuration
 # The Tinfoil Release workflow rewrites the image digest on every release.
-cvm-version: 0.7.5   # value from tinfoil-public-containers-template; check https://github.com/tinfoilsh/cvmimage for latest
-cpus: 16
-memory: 65536
-gpus: 1
+cvm-version: 0.14.7   # value in https://docs.tinfoil.sh/containers/quickstart
+cpus: 2
+memory: 8192          # smallest valid value (8 GB)
 
-# No `networks:` block => no egress. Code, attack data and model weights are baked into the image.
+networks:
+  inference:
+    egress: allowlist
+    allow:
+      - inference.tinfoil.sh
+
 containers:
   - name: "breachbench"
     image: "ghcr.io/tu2090-ops/breachbench-localhost:placeholder"
-    runtime: nvidia
-    gpus: all
     restart: always
+    networks: [inference]
+    env:
+      - BB_URL: "https://inference.tinfoil.sh/v1"
+      - BB_MODEL: "gemma4-31b"
+    secrets:
+      - TINFOIL_API_KEY
     tmpfs:
-      /tmp: size=2g,mode=1777,exec
+      /tmp: size=512m,mode=1777
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
-      start_period: 10m
+      start_period: 2m
 
 shim:
   upstream-port: 8080
