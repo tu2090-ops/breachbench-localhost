@@ -1,0 +1,653 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BreachBench Lab API (Vulnerable vs. Hardened)",
+    "description": "Self-contained lab API with 10 vulnerable routes (/vuln/*) and 10 hardened counterparts (/hardened/*).",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/vuln/notes/{note_id}": {
+      "get": {
+        "tags": [
+          "Vulnerable"
+        ],
+        "summary": "Vuln Get Note",
+        "description": "VULNERABLE (API1:2023 BOLA/IDOR): Returns any note by ID without checking caller's account scope.",
+        "operationId": "vuln_get_note_vuln_notes__note_id__get",
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Note Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hardened/notes/{note_id}": {
+      "get": {
+        "tags": [
+          "Hardened"
+        ],
+        "summary": "Hardened Get Note",
+        "description": "HARDENED (API1:2023): Enforces per-account ownership before returning note.",
+        "operationId": "hardened_get_note_hardened_notes__note_id__get",
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Note Id"
+            }
+          },
+          {
+            "name": "x-account-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Account-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vuln/login/totp": {
+      "post": {
+        "tags": [
+          "Vulnerable"
+        ],
+        "summary": "Vuln Verify Totp",
+        "description": "VULNERABLE (API2:2023): No rate limit or replay protection on 6-digit TOTP.",
+        "operationId": "vuln_verify_totp_vuln_login_totp_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpAttempt"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hardened/login/totp": {
+      "post": {
+        "tags": [
+          "Hardened"
+        ],
+        "summary": "Hardened Verify Totp",
+        "description": "HARDENED (API2:2023): Rate-limited TOTP verification with replay blocking.",
+        "operationId": "hardened_verify_totp_hardened_login_totp_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpAttempt"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vuln/account/signup": {
+      "post": {
+        "tags": [
+          "Vulnerable"
+        ],
+        "summary": "Vuln Signup",
+        "description": "VULNERABLE (API3:2023): Trusts client-supplied role/approved flags and leaks internal secrets.",
+        "operationId": "vuln_signup_vuln_account_signup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hardened/account/signup": {
+      "post": {
+        "tags": [
+          "Hardened"
+        ],
+        "summary": "Hardened Signup",
+        "description": "HARDENED (API3:2023): Ignores role/approved in request body and returns only AccountPublic.",
+        "operationId": "hardened_signup_hardened_account_signup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vuln/egress/fetch": {
+      "post": {
+        "tags": [
+          "Vulnerable"
+        ],
+        "summary": "Vuln Egress Fetch",
+        "description": "VULNERABLE (API7:2023): Allows arbitrary hosts and follows redirects to metadata IPs.",
+        "operationId": "vuln_egress_fetch_vuln_egress_fetch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgressPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hardened/egress/fetch": {
+      "post": {
+        "tags": [
+          "Hardened"
+        ],
+        "summary": "Hardened Egress Fetch",
+        "description": "HARDENED (API7:2023): Enforces Trapni assertEgress allowlist on both initial URL and 3xx Location.",
+        "operationId": "hardened_egress_fetch_hardened_egress_fetch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgressPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vuln/cron/gmail-sync": {
+      "get": {
+        "tags": [
+          "Vulnerable"
+        ],
+        "summary": "Vuln Cron Gmail",
+        "description": "VULNERABLE (API6:2023): Triggers background sync without verifying CRON_SECRET.",
+        "operationId": "vuln_cron_gmail_vuln_cron_gmail_sync_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hardened/cron/gmail-sync": {
+      "get": {
+        "tags": [
+          "Hardened"
+        ],
+        "summary": "Hardened Cron Gmail",
+        "description": "HARDENED (API6:2023): Requires Bearer CRON_SECRET.",
+        "operationId": "hardened_cron_gmail_hardened_cron_gmail_sync_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vuln/notes/ai-summarize": {
+      "post": {
+        "tags": [
+          "Vulnerable"
+        ],
+        "summary": "Vuln Ai Summarize",
+        "description": "VULNERABLE (API10:2023): Concatenates untrusted email into system prompt without quarantine.",
+        "operationId": "vuln_ai_summarize_vuln_notes_ai_summarize_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SummarizePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hardened/notes/ai-summarize": {
+      "post": {
+        "tags": [
+          "Hardened"
+        ],
+        "summary": "Hardened Ai Summarize",
+        "description": "HARDENED (API10:2023): Quarantines untrusted email inside data envelope and keeps phishing check deterministic.",
+        "operationId": "hardened_ai_summarize_hardened_notes_ai_summarize_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SummarizePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EgressPayload": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "simulated_redirect": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulated Redirect"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "EgressPayload"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "SignupPayload": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "passcode": {
+            "type": "string",
+            "title": "Passcode"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role",
+            "default": "member"
+          },
+          "approved": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "passcode"
+        ],
+        "title": "SignupPayload"
+      },
+      "SummarizePayload": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject",
+          "body"
+        ],
+        "title": "SummarizePayload"
+      },
+      "TotpAttempt": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "title": "Account Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "code"
+        ],
+        "title": "TotpAttempt"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+[
+  {
+    "id": "CODE-VULN-001",
+    "title": "SQL Injection via String Formatting",
+    "language": "python",
+    "vulnerable": true,
+    "category": "sql_injection",
+    "cwe": "CWE-89",
+    "owasp": "A03:2021 Injection",
+    "severity": "critical",
+    "code": "def get_user_by_email(cursor, email: str):\n    query = f\"SELECT id, email, role FROM users WHERE email = '{email}'\"\n    cursor.execute(query)\n    return cursor.fetchall()\n"
+  },
+  {
+    "id": "CODE-VULN-002",
+    "title": "OS Command Injection via subprocess shell=True and os.system",
+    "language": "python",
+    "vulnerable": true,
+    "category": "command_injection",
+    "cwe": "CWE-78",
+    "owasp": "A03:2021 Injection",
+    "severity": "critical",
+    "code": "import os, subprocess\ndef ping_host(hostname: str):\n    os.system('ping -c 1 ' + hostname)\n    return subprocess.run(f'nslookup {hostname}', shell=True, capture_output=True)\n"
+  },
+  {
+    "id": "CODE-VULN-003",
+    "title": "Server-Side Request Forgery (SSRF) & Unvalidated Redirect",
+    "language": "python",
+    "vulnerable": true,
+    "category": "ssrf",
+    "cwe": "CWE-918",
+    "owasp": "API7:2023 SSRF",
+    "severity": "critical",
+    "code": "import requests\ndef fetch_webhook_preview(user_supplied_url: str):\n    # Directly fetches user URL including http://169.254.169.254/latest/meta-data/ with redirects enabled\n    resp = requests.get(user_supplied_url, allow_redirects=True, timeout=5)\n    return resp.text\n"
+  },
+  {
+    "id": "CODE-VULN-004",
+    "title": "Broken Object Level Authorization (BOLA / IDOR) Missing Tenant Scope",
+    "language": "python",
+    "vulnerable": true,
+    "category": "bola_idor",
+    "cwe": "CWE-639",
+    "owasp": "API1:2023 BOLA",
+    "severity": "high",
+    "code": "@app.get('/vuln/documents/{doc_id}')\ndef get_document(doc_id: str):\n    # Fetches object directly by ID from global store without verifying X-Account-Id or tenant owner\n    return DOCUMENT_STORE.get(doc_id)\n"
+  },
+  {
+    "id": "CODE-VULN-005",
+    "title": "Hardcoded Cloud & API Secrets in Source",
+    "language": "python",
+    "vulnerable": true,
+    "category": "hardcoded_secret",
+    "cwe": "CWE-798",
+    "owasp": "A07:2021 Identification and Authentication Failures",
+    "severity": "critical",
+    "code": "OPENAI_API_KEY = \"sk-proj-9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b\"\nAWS_ACCESS_KEY_ID = \"AKIAIOSFODNN7EXAMPLE\"\nJWT_SIGNING_SECRET = \"super-secret-production-jwt-key-2026\"\n"
+  },
+  {
+    "id": "CODE-VULN-006",
+    "title": "Unsafe Deserialization & Dynamic Code Execution (eval / pickle / yaml.load)",
+    "language": "python",
+    "vulnerable": true,
+    "category": "unsafe_deserialization",
+    "cwe": "CWE-502",
+    "owasp": "A08:2021 Software and Data Integrity Failures",
+    "severity": "critical",
+    "code": "import pickle, yaml\ndef parse_Untrusted_payload(raw_bytes: bytes, yaml_str: str, expr: str):\n    obj = pickle.loads(raw_bytes)\n    cfg = yaml.load(yaml_str, Loader=yaml.Loader)\n    res = eval(expr)\n    return obj, cfg, res\n"
+  },
+  {
+    "id": "CODE-VULN-007",
+    "title": "Arbitrary File Read via Path Traversal",
+    "language": "python",
+    "vulnerable": true,
+    "category": "path_traversal",
+    "cwe": "CWE-22",
+    "owasp": "A01:2021 Broken Access Control",
+    "severity": "high",
+    "code": "def read_report_template(filename: str) -> str:\n    # No resolve() or base directory prefix check; vulnerable to ../../etc/passwd\n    with open('/var/app/templates/' + filename, 'r') as fh:\n        return fh.read()\n"
+  },
+  {
+    "id": "CODE-VULN-008",
+    "title": "Weak Cryptographic Hash (MD5/SHA1) & Insecure PRNG for Auth Token",
+    "language": "python",
+    "vulnerable": true,
+    "category": "weak_crypto",
+    "cwe": "CWE-327",
+    "owasp": "A02:2021 Cryptographic Failures",
+    "severity": "high",
+    "code": "import hashlib, random\ndef hash_password_and_mint_otp(password: str):\n    digest = hashlib.md5(password.encode()).hexdigest()\n    otp = str(int(random.random() * 1000000))\n    return digest, otp\n"
+  },
+  {
+    "id": "CODE-SAFE-001",
+    "title": "Parameterized SQL Query",
+    "language": "python",
+    "vulnerable": false,
+    "category": "none",
+    "cwe": "NONE",
+    "owasp": "NONE",
+    "severity": "none",
+    "code": "def get_user_by_email_safe(cursor, email: str):\n    cursor.execute(\"SELECT id, email, role FROM users WHERE email = ?\", (email,))\n    return cursor.fetchall()\n"
+  },
+  {
+    "id": "CODE-SAFE-002",
+    "title": "Argument-List Subprocess Execution Without Shell",
+    "language": "python",
+    "vulnerable": false,
+    "category": "none",
+    "cwe": "NONE",
+    "owasp": "NONE",
+    "severity": "none",
+    "code": "import subprocess\ndef check_uptime_safe():\n    return subprocess.run(['/usr/bin/uptime'], shell=False, check=True, capture_output=True, text=True)\n"
+  },
+  {
+    "id": "CODE-SAFE-003",
+    "title": "Tenant-Scoped Document Access & Safe YAML Loading",
+    "language": "python",
+    "vulnerable": false,
+    "category": "none",
+    "cwe": "NONE",
+    "owasp": "NONE",
+    "severity": "none",
+    "code": "import yaml\ndef load_tenant_config_safe(yaml_str: str, account_id: str, doc: dict):\n    if doc.get('owner_account_id') != account_id:\n        raise PermissionError('Cross-tenant access denied')\n    return yaml.safe_load(yaml_str)\n"
+  },
+  {
+    "id": "CODE-SAFE-004",
+    "title": "Strong Scrypt/PBKDF2 Hashing & CSPRNG Secrets Module",
+    "language": "python",
+    "vulnerable": false,
+    "category": "none",
+    "cwe": "NONE",
+    "owasp": "NONE",
+    "severity": "none",
+    "code": "import hashlib, os, secrets\ndef hash_password_safe(password: str):\n    salt = os.urandom(16)\n    key = hashlib.scrypt(password.encode('utf-8'), salt=salt, n=16384, r=8, p=1)\n    token = secrets.token_urlsafe(32)\n    return key.hex(), token\n"
+  }
+]

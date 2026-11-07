@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BreachBenchAPIFinding",
+  "type": "object",
+  "required": [
+    "id",
+    "endpoint",
+    "method",
+    "owasp_category",
+    "top10_cause",
+    "severity",
+    "flaw_summary",
+    "hardened_counterpart",
+    "remediation"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "endpoint": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "owasp_category": {
+      "type": "string"
+    },
+    "top10_cause": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "flaw_summary": {
+      "type": "string"
+    },
+    "hardened_counterpart": {
+      "type": "string"
+    },
+    "remediation": {
+      "type": "string"
+    }
+  }
+}

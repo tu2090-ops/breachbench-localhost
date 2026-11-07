@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BreachBenchPhishingExample",
+  "type": "object",
+  "required": [
+    "id",
+    "subject",
+    "body",
+    "label",
+    "subtype",
+    "top10_cause",
+    "difficulty"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "from_name": {
+      "type": "string"
+    },
+    "from_address": {
+      "type": "string"
+    },
+    "reply_to": {
+      "type": "string"
+    },
+    "return_path": {
+      "type": "string"
+    },
+    "auth_results": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string",
+      "enum": [
+        "phishing",
+        "suspicious",
+        "benign"
+      ]
+    },
+    "subtype": {
+      "type": "string",
+      "enum": [
+        "credential_harvesting",
+        "bec_invoice_fraud",
+        "mfa_fatigue",
+        "malware_lure",
+        "ai_generated_lure",
+        "prompt_injection",
+        "pretexting",
+        "oauth_consent_phish",
+        "benign_corporate",
+        "benign_transactional",
+        "benign_newsletter"
+      ]
+    },
+    "top10_cause": {
+      "type": "string",
+      "enum": [
+        "Phishing & Credential Harvesting",
+        "Business Email Compromise (BEC)",
+        "MFA Bypass & Social Engineering",
+        "Malware & Ransomware Delivery",
+        "AI-Assisted Pretexting & Prompt Injection",
+        "Third-Party / OAuth Supply Chain",
+        "None (Benign)"
+      ]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "medium",
+        "hard"
+      ]
+    },
+    "trapni_expected_verdict": {
+      "type": "string",
+      "enum": [
+        "clear",
+        "caution",
+        "danger"
+      ]
+    }
+  }
+}

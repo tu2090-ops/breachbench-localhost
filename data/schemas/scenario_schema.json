@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BreachBenchScenario",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "top10_cause",
+    "summary",
+    "trapni_relevance",
+    "steps"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "top10_cause": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "trapni_relevance": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "step_num",
+          "actor",
+          "action",
+          "human_behavior_trigger",
+          "failed_control",
+          "observable_signal",
+          "defender_action"
+        ],
+        "properties": {
+          "step_num": {
+            "type": "integer"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "human_behavior_trigger": {
+            "type": "string"
+          },
+          "failed_control": {
+            "type": "string"
+          },
+          "observable_signal": {
+            "type": "string"
+          },
+          "defender_action": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

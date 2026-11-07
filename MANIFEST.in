@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+recursive-include data *.json *.jsonl
+recursive-include config *.json
+recursive-include samples *.py *.json *.sh

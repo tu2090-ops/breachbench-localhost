@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "policy": "explicit-allowlist-only",
+  "require_permission_token": "YES_I_HAVE_AUTHORIZATION",
+  "machines": [
+    {
+      "name": "local-workstation-01",
+      "host": "127.0.0.1",
+      "ssh_user": "operator",
+      "port": 22,
+      "authorized": true,
+      "owner_approval": "approved-local-eval-2026",
+      "role": "agent-eval-node",
+      "provider": "deterministic"
+    },
+    {
+      "name": "lab-eval-node-02",
+      "host": "192.168.1.50",
+      "ssh_user": "secops",
+      "port": 22,
+      "authorized": true,
+      "owner_approval": "approved-lab-cluster-2026",
+      "role": "openai-agent-runner",
+      "provider": "openai"
+    },
+    {
+      "name": "unapproved-staging-box",
+      "host": "192.168.1.99",
+      "ssh_user": "secops",
+      "port": 22,
+      "authorized": false,
+      "owner_approval": null,
+      "role": "staging",
+      "provider": "deterministic"
+    }
+  ]
+}
