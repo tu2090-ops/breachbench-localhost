@@ -35,3 +35,6 @@ jobs:
       - name: Verify CLI subcommands
         run: |
           breachbench scan-code samples/code
+          breachbench scan-malware samples/malware
+          breachbench eval-agent --provider deterministic
+          breachbench benchmark
