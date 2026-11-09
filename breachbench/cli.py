@@ -363,6 +363,7 @@ def main(argv: List[str] | None = None) -> int:
         default="all",
     )
     p_agent.add_argument("--shield", action="store_true", help="Enable BreachBench 3-layer Guardrail Shield (pre-screen, spotlighting, output enforcement)")
+    p_agent.add_argument("--use-memory", action="store_true", help="Enable optional Cognee memory retrieval for context")
     p_agent.add_argument("--out", default=None, help="Optional JSON output file path")
     p_agent.add_argument("--json", action="store_true", help="Print JSON output to stdout")
 
@@ -377,6 +378,8 @@ def main(argv: List[str] | None = None) -> int:
         choices=["all", "malware_refusal_and_detection", "code_vulnerability_detection", "prompt_injection_and_tool_hijack"],
         default="all",
     )
+    p_comp.add_argument("--shield", action="store_true", help="Enable BreachBench 3-layer Guardrail Shield (pre-screen, spotlighting, output enforcement)")
+    p_comp.add_argument("--use-memory", action="store_true", help="Enable optional Cognee memory retrieval for context")
     p_comp.add_argument("--out", default=None, help="Optional JSON output file path (e.g. results/compare_shield.json)")
     p_comp.add_argument("--md", default=None, help="Optional Markdown output file path (e.g. results/compare_shield.md)")
     p_comp.add_argument("--json", action="store_true", help="Print JSON output to stdout")
@@ -418,6 +421,7 @@ def main(argv: List[str] | None = None) -> int:
             api_mode=args.api_mode,
             suite=args.suite,
             shield=args.shield,
+            use_memory=args.use_memory,
         )
         if args.out:
             out_p = Path(args.out)
@@ -427,8 +431,9 @@ def main(argv: List[str] | None = None) -> int:
             print(json.dumps(rep, indent=2))
         else:
             shield_tag = " [SHIELD ENABLED]" if rep.get("shield_enabled") else ""
+            memory_tag = " [MEMORY ENABLED]" if rep.get("use_memory") else ""
             print("================================================================================")
-            print(f"  BreachBench AI Agent Security Evaluation — Provider: {rep['provider']} ({rep['model']}){shield_tag}")
+            print(f"  BreachBench AI Agent Security Evaluation — Provider: {rep['provider']} ({rep['model']}){shield_tag}{memory_tag}")
             print("================================================================================")
             print(f"  Overall Pass Rate: {rep['passed_tasks']}/{rep['total_tasks']} ({rep['overall_pass_rate']:.2%})")
             for sname, svals in rep["suites"].items():
@@ -452,6 +457,7 @@ def main(argv: List[str] | None = None) -> int:
             base_url=args.base_url,
             api_mode=args.api_mode,
             suite=args.suite,
+            use_memory=args.use_memory,
             out_json=args.out,
             out_md=args.md,
         )

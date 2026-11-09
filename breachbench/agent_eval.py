@@ -11,6 +11,7 @@ Supports:
   - --provider echo (weak/naive stub model that complies with unsafe requests & injections, used to verify Guardrail Shield)
   - --provider deterministic (offline reference defensive agent for CI & air-gapped verification)
   - --shield (enables BreachBench 3-layer Guardrail Shield: input pre-screen, prompt spotlighting, and output enforcement)
+  - --use-memory (optional Cognee retrieval of relevant context)
 """
 from __future__ import annotations
 
@@ -231,6 +232,34 @@ def _call_openai_compatible(
     return str(data.get("choices", [{}])[0].get("message", {}).get("content") or "")
 
 
+def _retrieve_context_from_memory(prompt: str) -> Optional[str]:
+    """Retrieve relevant context from the Cognee dataset bb_smoke (CHUNKS search)."""
+    import asyncio
+    try:
+        import cognee
+        from cognee.modules.search.types import SearchType
+    except ImportError as e:
+        raise RuntimeError(f"Cognee not importable: {e}")
+    try:
+        results = asyncio.run(cognee.search(
+            query_text=prompt,
+            query_type=SearchType.CHUNKS,
+            datasets=["bb_smoke"],
+            top_k=3,
+        ))
+    except Exception as e:
+        raise RuntimeError(f"Memory retrieval failed: {e}")
+    if not results:
+        return None
+    parts = []
+    for r in results:
+        if isinstance(r, dict):
+            parts.append(str(r.get("text") or r.get("content") or r.get("search_result") or r))
+        else:
+            parts.append(str(getattr(r, "search_result", r)))
+    return chr(10).join(parts)
+
+
 def grade_agent_response(task: Dict[str, Any], response_text: str) -> Dict[str, Any]:
     """Grade an agent's response against task-specific refusal, detection, safe-code, and injection criteria."""
     response_text = response_text or ""
@@ -263,6 +292,7 @@ def evaluate_agent(
     api_mode: str = "chat",
     suite: str = "all",
     shield: bool = False,
+    use_memory: bool = False,
 ) -> Dict[str, Any]:
     """Run the BreachBench AI Agent Evaluation Suite and compute per-suite and overall pass rates."""
     tasks = load_agent_eval_tasks(suite_filter=suite)
@@ -290,15 +320,25 @@ def evaluate_agent(
         sys_prompt = AGENT_SYSTEM_PROMPT
         user_prompt = task["prompt"]
 
+        # Add memory context if requested
+        if use_memory:
+            try:
+                memory_context = _retrieve_context_from_memory(user_prompt)
+                if memory_context:
+                    user_prompt = f"{user_prompt}\n\nRelevant context from memory:\n{memory_context}"
+            except Exception as e:
+                # If retrieval fails, continue without context but log the error
+                print(f"Warning: Memory retrieval failed for task {task['id']}: {str(e)}")
+
         if shield:
             prescreen = prescreen_input(
-                prompt=task["prompt"],
+                prompt=user_prompt,
                 artifact=task.get("artifact"),
                 code_snippet=task.get("code_snippet"),
                 untrusted_email=task.get("untrusted_email"),
             )
             sys_prompt, user_prompt = build_spotlighted_messages(
-                prompt=task["prompt"],
+                prompt=user_prompt,
                 prescreen=prescreen,
                 base_system_prompt=AGENT_SYSTEM_PROMPT,
             )
@@ -357,6 +397,7 @@ def evaluate_agent(
         "model": resolved_model,
         "base_url": resolved_base,
         "shield_enabled": shield,
+        "use_memory": use_memory,
         "total_tasks": total,
         "passed_tasks": passed,
         "overall_pass_rate": round(passed / max(1, total), 4),
@@ -374,6 +415,7 @@ def compare_agent_shield(
     suite: str = "all",
     out_json: Optional[str | Path] = None,
     out_md: Optional[str | Path] = None,
+    use_memory: bool = False,
 ) -> Dict[str, Any]:
     """
     Run the same model/provider unshielded (`shield=False`) then shielded (`shield=True`),
@@ -388,6 +430,7 @@ def compare_agent_shield(
         api_mode=api_mode,
         suite=suite,
         shield=False,
+        use_memory=use_memory,
     )
     shielded = evaluate_agent(
         provider=provider,
@@ -397,6 +440,7 @@ def compare_agent_shield(
         api_mode=api_mode,
         suite=suite,
         shield=True,
+        use_memory=use_memory,
     )
 
     suite_comparison: Dict[str, Dict[str, Any]] = {}
@@ -431,6 +475,7 @@ def compare_agent_shield(
         "provider": provider,
         "model": unshielded["model"],
         "base_url": unshielded["base_url"],
+        "use_memory": use_memory,
         "total_tasks": unshielded["total_tasks"],
         "unshielded_passed": unshielded["passed_tasks"],
         "unshielded_pass_rate": unshielded["overall_pass_rate"],
@@ -473,6 +518,7 @@ def format_compare_shield_markdown(comp: Dict[str, Any]) -> str:
         f"- **Generated (UTC)**: `{comp['timestamp_utc']}`",
         f"- **Provider**: `{comp['provider']}`",
         f"- **Model**: `{comp['model']}`",
+        f"- **Memory Usage**: `{'enabled' if comp.get('use_memory', False) else 'disabled'}`",
         "",
         "## 1. Suite & Overall Summary",
         "",

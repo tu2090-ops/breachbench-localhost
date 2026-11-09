@@ -2,3 +2,4 @@
 results/
 data/hf/
 __pycache__/
+.aider*
