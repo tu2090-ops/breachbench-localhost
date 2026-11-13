@@ -5,7 +5,7 @@ README_PATH = Path(__file__).resolve().parent / "README.md"
 
 setup(
     name="breachbench",
-    version="1.3.0",
+    version="0.0.3",
     description="Open-source security benchmark, 3-layer Guardrail Shield, and static/dynamic scanner for AI agents, code vulnerabilities, malware, phishing, and OWASP API Top 10.",
     long_description=README_PATH.read_text(encoding="utf-8") if README_PATH.exists() else "",
     long_description_content_type="text/markdown",

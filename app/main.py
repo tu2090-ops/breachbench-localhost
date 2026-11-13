@@ -32,7 +32,7 @@ from breachbench.malware_scanner import scan_malware_payload
 app = FastAPI(
     title="BreachBench Security Evaluation Service",
     description="Open-source AI Agent, Guardrail Shield, Code Vulnerability, Malware, Phishing & OWASP API Top 10 evaluation service.",
-    version="1.3.0",
+    version="0.0.3",
 )
 
 app.add_middleware(
@@ -99,7 +99,7 @@ def health_check() -> Dict[str, Any]:
     return {
         "status": "ok",
         "service": "breachbench",
-        "version": "1.3.0",
+        "version": "0.0.3",
         "capabilities": [
             "phishing_bec_mfa_triage",
             "prompt_injection_shield",
