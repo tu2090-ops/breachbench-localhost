@@ -223,7 +223,7 @@
           "Hardened"
         ],
         "summary": "Hardened Signup",
-        "description": "HARDENED (API3:2023): Ignores role/approved in request body and returns only AccountPublic.",
+        "description": "HARDENED (API3:2023): Ignores role/approved in request body and returns only public account fields.",
         "operationId": "hardened_signup_hardened_account_signup_post",
         "requestBody": {
           "content": {
@@ -303,7 +303,7 @@
           "Hardened"
         ],
         "summary": "Hardened Egress Fetch",
-        "description": "HARDENED (API7:2023): Enforces Trapni assertEgress allowlist on both initial URL and 3xx Location.",
+        "description": "HARDENED (API7:2023): Enforces an HTTPS hostname allowlist on both initial URL and 3xx Location.",
         "operationId": "hardened_egress_fetch_hardened_egress_fetch_post",
         "requestBody": {
           "content": {

@@ -4,6 +4,9 @@ All notable changes to **BreachBench** are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Renamed leftover identifiers from an unrelated project to BreachBench names. `POST /v1/workspace/posture` (`evaluate_workspace_posture`, `WorkspacePostureRequest`) remains because `breachbench benchmark` uses it for at-risk vs hardened workspace scores. Also renamed the threat-canary env var to `BREACHBENCH_THREAT_CANARY`, phishing/schema keys (`expected_verdict`, `email_security`, `relevance`), and eval/lab copy that still named that project's internals.
+
 ## [0.0.3] - 2026-11-12
 
 ### Added

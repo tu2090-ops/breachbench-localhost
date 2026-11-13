@@ -4,7 +4,7 @@
     "title": "Lookalike Phish -> Credential Harvest -> Password Reuse -> Over-Privileged IAM -> Vault Exfiltration",
     "top10_cause": "Phishing & Credential Harvesting",
     "summary": "An attacker sends an urgent SSO password-expiry lure from a lookalike domain, harvests the user's password, reuses it on a cloud dashboard lacking mandatory MFA, assumes an over-privileged storage role, and exfiltrates the Redis database.",
-    "trapni_relevance": "Directly tests Trapni's lookalike domain check (src/lib/phishing.ts), scrypt passcode + mandatory TOTP/Passkey MFA (src/lib/auth.ts), and Redis key isolation.",
+    "relevance": "Exercises lookalike-domain detection, passcode plus mandatory TOTP/Passkey MFA, and Redis key isolation.",
     "steps": [
       {
         "step_num": 1,
@@ -27,20 +27,20 @@
       {
         "step_num": 3,
         "actor": "External Threat Actor",
-        "action": "Reuses harvested password against the user's Second Brain web login from an unfamiliar residential proxy IP.",
+        "action": "Reuses harvested password against the user's personal notes app login from an unfamiliar residential proxy IP.",
         "human_behavior_trigger": "Password reuse across work and personal productivity tools.",
         "failed_control": "Single-factor passcode login without step-up TOTP/WebAuthn requirement on new devices.",
-        "observable_signal": "SecurityActivity event with kind='new-device' and unfamiliar IP/network.",
+        "observable_signal": "Security event for a new device from an unfamiliar IP/network.",
         "defender_action": "Enforce MFA (TOTP or Passkey) on every new device and require admin confirmation before granting session access."
       },
       {
         "step_num": 4,
         "actor": "External Threat Actor",
-        "action": "Queries /api/notes and /api/reviews using the hijacked session to bulk-export personal notes and Gmail summaries.",
+        "action": "Queries the notes and review APIs using the hijacked session to bulk-export personal notes and email summaries.",
         "human_behavior_trigger": "Delayed review of unfamiliar device sign-in alerts.",
-        "failed_control": "Lack of per-device session revocation and step-up auth (requireRecent) for sensitive actions.",
-        "observable_signal": "Rapid sequential GET requests to /api/notes from a newly registered device (<48h old).",
-        "defender_action": "Revoke unfamiliar device session via /api/security/sessions and rotate passcodes/tokens."
+        "failed_control": "Lack of per-device session revocation and step-up auth for sensitive actions.",
+        "observable_signal": "Rapid sequential GET requests to the notes API from a newly registered device (<48h old).",
+        "defender_action": "Revoke the unfamiliar device session in security settings and rotate passcodes/tokens."
       }
     ]
   },
@@ -49,7 +49,7 @@
     "title": "MFA Fatigue Push Bombing + Helpdesk Pretext -> OTP Disclosure -> Session Hijack",
     "top10_cause": "MFA Bypass & Social Engineering",
     "summary": "After obtaining a user's primary passcode, the attacker triggers repeated MFA challenges and sends an IT Helpdesk pretext email asking for the 6-digit TOTP code to 'prevent audit lockout'.",
-    "trapni_relevance": "Directly maps to Trapni's 'pretext' check in src/lib/phishing.ts and TOTP/Passkey session controls in src/app/api/login/totp/route.ts.",
+    "relevance": "Maps to the pretext phishing check and TOTP/Passkey session controls.",
     "steps": [
       {
         "step_num": 1,
@@ -57,8 +57,8 @@
         "action": "Repeatedly submits login attempts to trigger MFA prompts while sending an urgent 'IT Help Desk' email claiming 14 failed MFA pushes will lock the account.",
         "human_behavior_trigger": "MFA alert fatigue and authority compliance toward IT support.",
         "failed_control": "Missing rate-limiting on login/MFA endpoints and unflagged helpdesk pretext email.",
-        "observable_signal": "Multiple 'mfa-failed' or 'signin-failed' events in SecurityActivity followed by inbound email matching PRETEXT regex ('IT help desk' + 'code/password').",
-        "defender_action": "Trigger Trapni 'pretext' fail check on the email and rate-limit /api/login and /api/login/totp."
+        "observable_signal": "Multiple 'mfa-failed' or 'signin-failed' events followed by inbound email matching PRETEXT regex ('IT help desk' + 'code/password').",
+        "defender_action": "Trigger the pretext fail check on the email and rate-limit login and TOTP verification endpoints."
       },
       {
         "step_num": 2,
@@ -75,8 +75,8 @@
         "action": "Attempts to register a persistent rogue passkey or bearer token for long-term backdoor access.",
         "human_behavior_trigger": "Assuming initial login grants full administrative persistence.",
         "failed_control": "Allowing non-admin devices or stale sessions to mint API tokens or passkeys.",
-        "observable_signal": "POST /api/security/tokens or /api/security/passkeys from a non-admin device.",
-        "defender_action": "Enforce requireAdmin(req) + requireRecent(req) step-up verification before minting tokens or registering passkeys."
+        "observable_signal": "Token or passkey registration from a non-admin device.",
+        "defender_action": "Require an admin role plus recent step-up verification before minting tokens or registering passkeys."
       }
     ]
   },
@@ -84,8 +84,8 @@
     "id": "SCEN-003",
     "title": "Obfuscated AI-Generated BEC + Prompt Injection -> Email Triage Bypass -> Fraudulent Wire Action Item",
     "top10_cause": "AI-Assisted Pretexting & Prompt Injection",
-    "summary": "An attacker crafts an executive wire-transfer email using zero-width characters, Cyrillic homoglyphs, and spaced letters ('w i r e', 'b a n k'), plus a prompt injection payload instructing the Second Brain LLM to mark the email safe and schedule the wire.",
-    "trapni_relevance": "Directly mirrors Trapni's normalizeThreatText(), BEC/AI-phish/model-abuse detectors in src/lib/phishing.ts, quarantineData() in src/lib/quarantine.ts, and withSafety() in src/agents/team.ts.",
+    "summary": "An attacker crafts an executive wire-transfer email using zero-width characters, Cyrillic homoglyphs, and spaced letters ('w i r e', 'b a n k'), plus a prompt injection payload instructing the notes-app LLM to mark the email safe and schedule the wire.",
+    "relevance": "Exercises threat-text normalization, BEC/AI-phish/model-abuse detectors, payload quarantine, and safety-wrapped agent output.",
     "steps": [
       {
         "step_num": 1,
@@ -94,16 +94,16 @@
         "human_behavior_trigger": "Executive authority pressure combined with secrecy ('Do not discuss this payment with anyone').",
         "failed_control": "Naive keyword matching that fails on homoglyphs/zero-width chars, or LLM-only phishing detection vulnerable to prompt injection.",
         "observable_signal": "Presence of U+200B zero-width characters, Cyrillic confusables, spaced threat keywords, and prompt-override phrases.",
-        "defender_action": "Run deterministic normalizeThreatText() prior to regex matching and flag both 'bec' (fail) and 'model-abuse' (warn)."
+        "defender_action": "Normalize threat text before regex matching and flag both BEC (fail) and model-abuse (warn)."
       },
       {
         "step_num": 2,
-        "actor": "Second Brain Ingestion Pipeline",
-        "action": "Imports the unread email via Gmail IMAP and generates a Note and NotePlan.",
-        "human_behavior_trigger": "Trusting automated AI summaries and action items in a personal Second Brain.",
+        "actor": "Notes-app ingestion pipeline",
+        "action": "Imports the unread email via IMAP and generates a note plus an action-item plan.",
+        "human_behavior_trigger": "Trusting automated AI summaries and action items in a personal notes app.",
         "failed_control": "Passing raw untrusted email text into LLM prompts without quarantine fences or failing to prepend safety warnings to action items.",
-        "observable_signal": "Note has source.kind='gmail' and security.verdict='danger'.",
-        "defender_action": "Fence payload with quarantineData(), redact foreign secrets with redactForeignSecrets(), and prepend withSafety() warning to NotePlan action items."
+        "observable_signal": "Imported note has source kind email and security verdict 'danger'.",
+        "defender_action": "Fence the payload as untrusted data, redact foreign secrets, and prepend a safety warning to generated action items."
       }
     ]
   },
@@ -111,26 +111,26 @@
     "id": "SCEN-004",
     "title": "Malicious OAuth / Bearer Token Leak -> Cross-Account IDOR Attempt -> Multi-Tenant Data Exposure",
     "top10_cause": "Broken Access Control & IDOR",
-    "summary": "A user pastes or leaks a Siri/API bearer token or signs up a second member account on a shared instance, and an attacker attempts to read or overwrite another account's notes and security settings.",
-    "trapni_relevance": "Directly maps to Trapni's multi-account isolation (src/lib/accounts.ts, src/lib/brain-keys.ts, scripts/test-account-isolation.mjs).",
+    "summary": "A user pastes or leaks an API bearer token or signs up a second member account on a shared instance, and an attacker attempts to read or overwrite another account's notes and security settings.",
+    "relevance": "Maps to multi-account isolation of notes and security settings.",
     "steps": [
       {
         "step_num": 1,
         "actor": "External Threat Actor",
-        "action": "Submits a signup request to /api/account/signup attempting to gain immediate access or admin privileges.",
-        "human_behavior_trigger": "Open self-registration on a public Vercel URL.",
+        "action": "Submits a signup request attempting to gain immediate access or admin privileges.",
+        "human_behavior_trigger": "Open self-registration on a public deployment URL.",
         "failed_control": "Auto-approving new accounts or trusting client-supplied role parameters.",
-        "observable_signal": "New entry in pending signups queue (/api/account/pending).",
+        "observable_signal": "New entry in the pending signups queue.",
         "defender_action": "Place new signups into pending state until explicitly approved by the admin account."
       },
       {
         "step_num": 2,
         "actor": "Approved Member / Attacker with Member Session",
-        "action": "Calls /api/notes, /api/reviews, or /api/security attempting to read the admin's private Second Brain vault or change security policies.",
+        "action": "Calls notes, review, or security APIs attempting to read the admin's private notes vault or change security policies.",
         "human_behavior_trigger": "Shared deployment URL across multiple users.",
-        "failed_control": "Global Redis key (brain:data) shared across all accounts without account-scoped namespacing.",
-        "observable_signal": "Member session accessing /api/notes or /api/security.",
-        "defender_action": "Scope Redis and file storage keys per account via AsyncLocalStorage (brain:acct:{id}:data) and block non-admins on /api/security."
+        "failed_control": "Global datastore key shared across all accounts without account-scoped namespacing.",
+        "observable_signal": "Member session accessing notes or security endpoints.",
+        "defender_action": "Scope storage keys per account and block non-admins from security-administration endpoints."
       }
     ]
   },
@@ -139,7 +139,7 @@
     "title": "Poisoned Note URL + Open Redirect -> Egress Firewall Bypass (SSRF) -> Internal Metadata / Exfiltration",
     "top10_cause": "SSRF & Egress Firewall Bypass",
     "summary": "An attacker sends a note containing a link to an allowlisted domain that 302-redirects to an attacker-controlled host or cloud metadata service during web research / plan generation.",
-    "trapni_relevance": "Directly tests Trapni's src/lib/egress.ts (assertEgress, redirect: 'manual', installFetchFirewall, and /api/egress blocked host logging).",
+    "relevance": "Exercises egress allowlisting, manual redirect handling, and blocked-host logging.",
     "steps": [
       {
         "step_num": 1,
@@ -148,7 +148,7 @@
         "human_behavior_trigger": "Curiosity to click 'Generate Action Plan' on an imported research note.",
         "failed_control": "Using default fetch() which silently follows 3xx redirects across origins without re-checking the destination host.",
         "observable_signal": "HTTP 302 response from initial outbound fetch pointing to a non-allowlisted hostname.",
-        "defender_action": "Use egressFetch() with redirect: 'manual', re-run assertEgress() on the Location header target, and log blocked hosts via noteBlocked()."
+        "defender_action": "Fetch with redirects disabled, re-check the Location header against the hostname allowlist, and log blocked hosts."
       }
     ]
   }

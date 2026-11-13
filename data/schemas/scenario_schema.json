@@ -7,7 +7,7 @@
     "title",
     "top10_cause",
     "summary",
-    "trapni_relevance",
+    "relevance",
     "steps"
   ],
   "properties": {
@@ -23,7 +23,7 @@
     "summary": {
       "type": "string"
     },
-    "trapni_relevance": {
+    "relevance": {
       "type": "string"
     },
     "steps": {
