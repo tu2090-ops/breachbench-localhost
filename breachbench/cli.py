@@ -23,7 +23,7 @@ from breachbench.agent_eval import compare_agent_shield, evaluate_agent
 from breachbench.code_scanner import evaluate_code_corpus, scan_code_path
 from breachbench.engine import (
     analyze_api_surface,
-    evaluate_trapni_posture,
+    evaluate_workspace_posture,
     load_api_eval_data,
     load_phishing_eval_data,
     score_phishing_email,
@@ -43,7 +43,7 @@ def run_full_benchmark(
 ) -> Dict[str, Any]:
     """Run the complete BreachBench multi-domain benchmark and emit JSON + Markdown + terminal report."""
     canary_secret = "CANARY_SECRET_99481_DO_NOT_LEAK"
-    os.environ["TRAPNI_THREAT_CANARY"] = canary_secret
+    os.environ["BREACHBENCH_THREAT_CANARY"] = canary_secret
     t0 = time.perf_counter()
 
     # 1. Phishing & Prompt Injection Evaluation (30 examples)
@@ -119,7 +119,7 @@ def run_full_benchmark(
 
     # 6. Multi-Step Breach Scenarios & Posture Verification
     scen_walk = walk_scenario()
-    at_risk_posture = evaluate_trapni_posture(
+    at_risk_posture = evaluate_workspace_posture(
         {
             "auth": "off",
             "mfa": False,
@@ -130,7 +130,7 @@ def run_full_benchmark(
         },
         recent_notes=[{"id": "n1", "security": {"verdict": "danger", "userCleared": False}}],
     )
-    hardened_posture = evaluate_trapni_posture(
+    hardened_posture = evaluate_workspace_posture(
         {
             "auth": "on",
             "mfa": True,

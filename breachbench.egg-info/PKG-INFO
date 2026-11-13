@@ -218,7 +218,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8001
 | POST | `/v1/phishing/score` | Phishing / BEC / MFA / injection score |
 | POST | `/v1/surface/analyze` | OWASP API surface |
 | GET / POST | `/v1/scenarios`, `/v1/scenario/walk` | Scenario walk |
-| POST | `/v1/trapni/posture` | Synthetic workspace posture |
+| POST | `/v1/workspace/posture` | Synthetic workspace posture |
 
 ### Multi-machine runner
 

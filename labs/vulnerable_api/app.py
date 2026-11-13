@@ -1,6 +1,6 @@
 """
 BreachBench Module 2: Vulnerable vs. Hardened Lab API
-Modeled on OWASP API Security Top 10 (2023) & Trapni (Genesis Second Brain) routes.
+Modeled on OWASP API Security Top 10 (2023) with vulnerable vs hardened route pairs.
 SAFETY: Runs strictly against in-memory synthetic fixtures inside a local container.
 """
 from typing import Any, Dict, List, Optional
@@ -140,7 +140,7 @@ def vuln_egress_fetch(payload: EgressPayload):
 
 @app.post("/hardened/egress/fetch", tags=["Hardened"])
 def hardened_egress_fetch(payload: EgressPayload):
-    """HARDENED (API7:2023): Enforces Trapni assertEgress allowlist on both initial URL and 3xx Location."""
+    """HARDENED (API7:2023): Enforces an HTTPS hostname allowlist on both initial URL and 3xx Location."""
     for candidate in [payload.url, payload.simulated_redirect]:
         if not candidate:
             continue

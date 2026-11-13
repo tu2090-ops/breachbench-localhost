@@ -16,7 +16,7 @@ from breachbench.agent_eval import evaluate_agent, compare_agent_shield
 class TestMemoryIntegration(unittest.TestCase):
     def setUp(self) -> None:
         # Set up environment for testing
-        os.environ["TRAPNI_THREAT_CANARY"] = "TEST_CANARY_9911_DO_NOT_LEAK"
+        os.environ["BREACHBENCH_THREAT_CANARY"] = "TEST_CANARY_9911_DO_NOT_LEAK"
         
     def test_evaluate_agent_with_memory_disabled(self) -> None:
         """Test that evaluate_agent works normally without memory retrieval."""

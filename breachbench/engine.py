@@ -1,5 +1,5 @@
 """
-BreachBench Core Triage, Surface Analysis, Scenario Walker & Trapni Bridge Engine.
+BreachBench Core Triage, Surface Analysis, Scenario Walker & Workspace Posture Engine.
 Zero external runtime dependencies required for core deterministic evaluation.
 Optimized with precompiled module-level regexes and in-memory LRU caching.
 """
@@ -110,7 +110,7 @@ ZERO_WIDTH_RE = re.compile(r"[\u200b-\u200f\u202a-\u202e\u2060\ufeff]")
 SPACED_LETTERS_RE = re.compile(r"\b([a-zA-Z])(?:\s+([a-zA-Z])){2,7}\b")
 WHITESPACE_RE = re.compile(r"\s+")
 URL_EXTRACT_RE = re.compile(r"https?://[^\s<>\"')]+", flags=re.IGNORECASE)
-CANARY_ASSIGN_RE = re.compile(r"TRAPNI_THREAT_CANARY\s*=\s*\S+")
+CANARY_ASSIGN_RE = re.compile(r"BREACHBENCH_THREAT_CANARY\s*=\s*\S+")
 
 URGENCY_RE = re.compile(
     r"\b(urgent|immediately|within \d+ hours?|within \d+ minutes?|before \d+:\d+|suspended|lockout|forfeited|overdue|act fast)\b"
@@ -128,7 +128,7 @@ AI_PHISH_RE = re.compile(
     r"(i hope this email finds you well|dear valued customer|kindly be advised|unusual activity on your profile|kindly sign in|kindly verify)"
 )
 MODEL_ABUSE_RE = re.compile(
-    r"(ignore all previous instructions|disregard your safety rules|act as dan|jailbroken|system prompt|trapni_threat_canary|mark this email as safe|verdict=clear|ignore safety rules)"
+    r"(ignore all previous instructions|disregard your safety rules|act as dan|jailbroken|system prompt|breachbench_threat_canary|mark this email as safe|verdict=clear|ignore safety rules)"
 )
 
 
@@ -190,10 +190,10 @@ def extract_urls(text: str, html: str = "") -> List[str]:
 def redact_foreign_secrets(detail: str, raw_body: str = "") -> str:
     """Redact canary or environment variables if they were somehow echoed."""
     out = detail
-    canary = os.environ.get("TRAPNI_THREAT_CANARY", "")
+    canary = os.environ.get("BREACHBENCH_THREAT_CANARY", "")
     if canary and canary in out:
         out = out.replace(canary, "[REDACTED]")
-    if "TRAPNI_THREAT_CANARY" in out:
+    if "BREACHBENCH_THREAT_CANARY" in out:
         out = CANARY_ASSIGN_RE.sub("[REDACTED]", out)
     return out
 
@@ -441,7 +441,7 @@ def score_phishing_email(
         if verdict != "clear"
         else "BreachBench specialist triage found no credential, BEC, MFA-fatigue, or prompt-injection indicators."
     )
-    trapni_check = {
+    security_check = {
         "id": "breachbench",
         "label": "BreachBench Specialist Triage",
         "status": bb_status,
@@ -462,11 +462,11 @@ def score_phishing_email(
             if verdict != "clear"
             else "Safe for normal indexing."
         ),
-        "trapni_security_check": trapni_check,
-        "trapni_email_security": {
+        "security_check": security_check,
+        "email_security": {
             "verdict": verdict,
             "headline": headline,
-            "checks": checks + [trapni_check],
+            "checks": checks + [security_check],
             "links": len(urls),
             "checkedAt": now_iso,
         },
@@ -606,7 +606,7 @@ def walk_scenario(scenario_id: Optional[str] = None) -> Dict[str, Any]:
     return {"scenarios": list(scenarios), "count": len(scenarios)}
 
 
-def evaluate_trapni_posture(
+def evaluate_workspace_posture(
     security_status: Dict[str, Any],
     recent_notes: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
@@ -631,7 +631,7 @@ def evaluate_trapni_posture(
             "scenario_id": "SCEN-001",
             "severity": "critical",
             "title": "Passcode gate disabled (auth != 'on')",
-            "recommended_action": "Set BRAIN_PASSCODE in .env.local or enable a passcode in Security settings.",
+            "recommended_action": "Enable a workspace passcode in security settings.",
         })
     if not mfa_on:
         active_risks.append({

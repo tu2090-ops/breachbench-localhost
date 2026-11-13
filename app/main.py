@@ -9,7 +9,7 @@ Exposes:
   - POST /v1/surface/analyze
   - GET  /v1/scenarios
   - POST /v1/scenario/walk
-  - POST /v1/trapni/posture
+  - POST /v1/workspace/posture
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from breachbench.agent_eval import evaluate_agent
 from breachbench.code_scanner import scan_code_snippet
 from breachbench.engine import (
     analyze_api_surface,
-    evaluate_trapni_posture,
+    evaluate_workspace_posture,
     score_phishing_email,
     walk_scenario,
 )
@@ -89,7 +89,7 @@ class ScenarioWalkRequest(BaseModel):
     scenario_id: Optional[str] = None
 
 
-class TrapniPostureRequest(BaseModel):
+class WorkspacePostureRequest(BaseModel):
     security_status: Dict[str, Any]
     recent_notes: List[Dict[str, Any]] = Field(default_factory=list)
 
@@ -109,7 +109,7 @@ def health_check() -> Dict[str, Any]:
             "ai_agent_security_evaluator",
             "owasp_api_top10_analyzer",
             "scenario_walker",
-            "posture_evaluator",
+            "workspace_posture_evaluator",
         ],
     }
 
@@ -177,6 +177,6 @@ def walk_scenario_endpoint(req: ScenarioWalkRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@app.post("/v1/trapni/posture")
-def trapni_posture_endpoint(req: TrapniPostureRequest) -> Dict[str, Any]:
-    return evaluate_trapni_posture(req.security_status, req.recent_notes)
+@app.post("/v1/workspace/posture")
+def workspace_posture_endpoint(req: WorkspacePostureRequest) -> Dict[str, Any]:
+    return evaluate_workspace_posture(req.security_status, req.recent_notes)

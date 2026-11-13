@@ -4,6 +4,9 @@ All notable changes to **BreachBench** are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Renamed leftover Trapni identifiers to BreachBench names. `POST /v1/trapni/posture` is now `POST /v1/workspace/posture`; `evaluate_trapni_posture` is `evaluate_workspace_posture`; `TrapniPostureRequest` is `WorkspacePostureRequest`. The posture helper is kept because `breachbench benchmark` uses it for at-risk vs hardened workspace scores. Also renamed `TRAPNI_THREAT_CANARY` to `BREACHBENCH_THREAT_CANARY`, phishing/schema keys (`expected_verdict`, `email_security`, `relevance`), and lab comments that still named Trapni / Genesis Second Brain.
+
 ## [0.0.3] - 2026-11-12
 
 ### Added

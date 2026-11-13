@@ -89,7 +89,7 @@
         "hard"
       ]
     },
-    "trapni_expected_verdict": {
+    "expected_verdict": {
       "type": "string",
       "enum": [
         "clear",

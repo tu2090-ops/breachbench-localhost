@@ -4,7 +4,7 @@
     "title": "Lookalike Phish -> Credential Harvest -> Password Reuse -> Over-Privileged IAM -> Vault Exfiltration",
     "top10_cause": "Phishing & Credential Harvesting",
     "summary": "An attacker sends an urgent SSO password-expiry lure from a lookalike domain, harvests the user's password, reuses it on a cloud dashboard lacking mandatory MFA, assumes an over-privileged storage role, and exfiltrates the Redis database.",
-    "trapni_relevance": "Directly tests Trapni's lookalike domain check (src/lib/phishing.ts), scrypt passcode + mandatory TOTP/Passkey MFA (src/lib/auth.ts), and Redis key isolation.",
+    "relevance": "Exercises lookalike-domain detection, passcode plus mandatory TOTP/Passkey MFA, and Redis key isolation.",
     "steps": [
       {
         "step_num": 1,
@@ -49,7 +49,7 @@
     "title": "MFA Fatigue Push Bombing + Helpdesk Pretext -> OTP Disclosure -> Session Hijack",
     "top10_cause": "MFA Bypass & Social Engineering",
     "summary": "After obtaining a user's primary passcode, the attacker triggers repeated MFA challenges and sends an IT Helpdesk pretext email asking for the 6-digit TOTP code to 'prevent audit lockout'.",
-    "trapni_relevance": "Directly maps to Trapni's 'pretext' check in src/lib/phishing.ts and TOTP/Passkey session controls in src/app/api/login/totp/route.ts.",
+    "relevance": "Maps to the pretext phishing check and TOTP/Passkey session controls.",
     "steps": [
       {
         "step_num": 1,
@@ -58,7 +58,7 @@
         "human_behavior_trigger": "MFA alert fatigue and authority compliance toward IT support.",
         "failed_control": "Missing rate-limiting on login/MFA endpoints and unflagged helpdesk pretext email.",
         "observable_signal": "Multiple 'mfa-failed' or 'signin-failed' events in SecurityActivity followed by inbound email matching PRETEXT regex ('IT help desk' + 'code/password').",
-        "defender_action": "Trigger Trapni 'pretext' fail check on the email and rate-limit /api/login and /api/login/totp."
+        "defender_action": "Trigger the pretext fail check on the email and rate-limit /api/login and /api/login/totp."
       },
       {
         "step_num": 2,
@@ -85,7 +85,7 @@
     "title": "Obfuscated AI-Generated BEC + Prompt Injection -> Email Triage Bypass -> Fraudulent Wire Action Item",
     "top10_cause": "AI-Assisted Pretexting & Prompt Injection",
     "summary": "An attacker crafts an executive wire-transfer email using zero-width characters, Cyrillic homoglyphs, and spaced letters ('w i r e', 'b a n k'), plus a prompt injection payload instructing the Second Brain LLM to mark the email safe and schedule the wire.",
-    "trapni_relevance": "Directly mirrors Trapni's normalizeThreatText(), BEC/AI-phish/model-abuse detectors in src/lib/phishing.ts, quarantineData() in src/lib/quarantine.ts, and withSafety() in src/agents/team.ts.",
+    "relevance": "Exercises threat-text normalization, BEC/AI-phish/model-abuse detectors, payload quarantine, and safety-wrapped agent output.",
     "steps": [
       {
         "step_num": 1,
@@ -112,7 +112,7 @@
     "title": "Malicious OAuth / Bearer Token Leak -> Cross-Account IDOR Attempt -> Multi-Tenant Data Exposure",
     "top10_cause": "Broken Access Control & IDOR",
     "summary": "A user pastes or leaks a Siri/API bearer token or signs up a second member account on a shared instance, and an attacker attempts to read or overwrite another account's notes and security settings.",
-    "trapni_relevance": "Directly maps to Trapni's multi-account isolation (src/lib/accounts.ts, src/lib/brain-keys.ts, scripts/test-account-isolation.mjs).",
+    "relevance": "Maps to multi-account isolation of notes and security settings.",
     "steps": [
       {
         "step_num": 1,
@@ -139,7 +139,7 @@
     "title": "Poisoned Note URL + Open Redirect -> Egress Firewall Bypass (SSRF) -> Internal Metadata / Exfiltration",
     "top10_cause": "SSRF & Egress Firewall Bypass",
     "summary": "An attacker sends a note containing a link to an allowlisted domain that 302-redirects to an attacker-controlled host or cloud metadata service during web research / plan generation.",
-    "trapni_relevance": "Directly tests Trapni's src/lib/egress.ts (assertEgress, redirect: 'manual', installFetchFirewall, and /api/egress blocked host logging).",
+    "relevance": "Exercises egress allowlisting, manual redirect handling, and blocked-host logging.",
     "steps": [
       {
         "step_num": 1,

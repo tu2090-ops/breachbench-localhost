@@ -1,7 +1,7 @@
 {
   "openapi_version": "3.1.0",
-  "title": "BreachBench Lab API (Vulnerable vs. Hardened Second-Brain Surface)",
-  "description": "Self-contained lab API planting OWASP API Top 10 flaws alongside hardened counterparts modeled on Trapni (Genesis Second Brain).",
+  "title": "BreachBench Lab API (Vulnerable vs. Hardened Surface)",
+  "description": "Self-contained lab API planting OWASP API Top 10 flaws alongside hardened counterparts.",
   "endpoints": [
     {
       "id": "API-001",
