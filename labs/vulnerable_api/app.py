@@ -116,7 +116,7 @@ def vuln_signup(payload: SignupPayload):
 
 @app.post("/hardened/account/signup", tags=["Hardened"])
 def hardened_signup(payload: SignupPayload):
-    """HARDENED (API3:2023): Ignores role/approved in request body and returns only AccountPublic."""
+    """HARDENED (API3:2023): Ignores role/approved in request body and returns only public account fields."""
     return {
         "account": {
             "id": "acct-new",

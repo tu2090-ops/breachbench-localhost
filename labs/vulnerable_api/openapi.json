@@ -223,7 +223,7 @@
           "Hardened"
         ],
         "summary": "Hardened Signup",
-        "description": "HARDENED (API3:2023): Ignores role/approved in request body and returns only AccountPublic.",
+        "description": "HARDENED (API3:2023): Ignores role/approved in request body and returns only public account fields.",
         "operationId": "hardened_signup_hardened_account_signup_post",
         "requestBody": {
           "content": {

@@ -16,7 +16,7 @@
       "tenant_scoped": false,
       "flaw_summary": "Fetches note by note_id directly from global store without verifying X-Account-Id session ownership, allowing cross-account note read.",
       "hardened_counterpart": "/hardened/notes/{note_id}",
-      "remediation": "Enforce per-account storage key isolation (brain:{accountId}:data) and verify session account matches note owner before returning."
+      "remediation": "Enforce per-account storage key isolation and verify session account matches note owner before returning."
     },
     {
       "id": "API-002",
@@ -31,7 +31,7 @@
       "tenant_scoped": true,
       "flaw_summary": "Accepts unlimited 6-digit TOTP verification attempts without rate limiting, lockout backoff, or replay window tracking.",
       "hardened_counterpart": "/hardened/login/totp",
-      "remediation": "Enforce exponential backoff on failed attempts (recordFailure), bind TOTP challenge to a short-lived HMAC pending cookie, and reject replayed TOTP time-steps."
+      "remediation": "Enforce exponential backoff on failed attempts, bind TOTP challenge to a short-lived HMAC pending cookie, and reject replayed TOTP time-steps."
     },
     {
       "id": "API-003",
@@ -46,7 +46,7 @@
       "tenant_scoped": false,
       "flaw_summary": "Mass-assigns 'role' and 'approved' fields directly from client JSON payload and returns passwordHash and totpSecret in the HTTP response.",
       "hardened_counterpart": "/hardened/account/signup",
-      "remediation": "Explicitly allowlist input fields (email, name, passcode), force non-first accounts into 'pending' member role, and return only AccountPublic fields."
+      "remediation": "Explicitly allowlist input fields (email, name, passcode), force non-first accounts into 'pending' member role, and return only public account fields."
     },
     {
       "id": "API-004",
@@ -74,9 +74,9 @@
       "auth_required": true,
       "rate_limited": true,
       "tenant_scoped": false,
-      "flaw_summary": "Allows any signed-in member session to approve pending signups or revoke devices without checking requireAdmin(req) or requireRecent(req).",
+      "flaw_summary": "Allows any signed-in member session to approve pending signups or revoke devices without checking admin role or recent step-up authentication.",
       "hardened_counterpart": "/hardened/admin/pending-users",
-      "remediation": "Gate administrative endpoints behind both requireAdmin(req) and step-up re-authentication requireRecent(req)."
+      "remediation": "Gate administrative endpoints behind an admin-role check and step-up re-authentication."
     },
     {
       "id": "API-006",
@@ -106,7 +106,7 @@
       "tenant_scoped": true,
       "flaw_summary": "Fetches user-supplied URLs and automatically follows 302 redirects to internal metadata IPs (169.254.169.254) or non-allowlisted hosts.",
       "hardened_counterpart": "/hardened/egress/fetch",
-      "remediation": "Enforce strict hostname allowlist (assertEgress), block private/link-local IPs, use redirect='manual', and re-validate Location headers on 3xx responses."
+      "remediation": "Enforce a strict hostname allowlist, block private/link-local IPs, disable automatic redirects, and re-validate Location headers on 3xx responses."
     },
     {
       "id": "API-008",
@@ -125,7 +125,7 @@
     },
     {
       "id": "API-009",
-      "endpoint": "/vuln/v0/legacy-brain-dump",
+      "endpoint": "/vuln/v0/legacy-export",
       "method": "GET",
       "vulnerable": true,
       "owasp_category": "API9:2023 Improper Inventory Management",
@@ -134,8 +134,8 @@
       "auth_required": false,
       "rate_limited": false,
       "tenant_scoped": false,
-      "flaw_summary": "Deprecated v0 migration endpoint left enabled in production that exports raw brain.json without session or bearer token checks.",
-      "hardened_counterpart": "/hardened/v1/brain-export",
+      "flaw_summary": "Deprecated v0 migration endpoint left enabled in production that exports raw notes without session or bearer token checks.",
+      "hardened_counterpart": "/hardened/v1/data-export",
       "remediation": "Decommission legacy v0 routes and require authenticated admin session + step-up confirmation for exports."
     },
     {
@@ -151,7 +151,7 @@
       "tenant_scoped": true,
       "flaw_summary": "Concatenates raw untrusted email body directly into the system prompt and trusts unvalidated LLM output to mark phishing verdicts or execute actions.",
       "hardened_counterpart": "/hardened/notes/ai-summarize",
-      "remediation": "Wrap untrusted content in quarantineData fences, append QUARANTINE_RULE to system prompt, redact foreign secrets, and keep phishing verdicts deterministic."
+      "remediation": "Wrap untrusted content in a quarantine envelope, append an untrusted-data rule to the system prompt, redact foreign secrets, and keep phishing verdicts deterministic."
     }
   ]
 }

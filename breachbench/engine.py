@@ -581,7 +581,7 @@ def analyze_api_surface(spec_or_endpoints: Optional[Dict[str, Any]] = None) -> D
                         "top10_cause": "Broken Access Control & Missing Auth",
                         "severity": "critical" if ("notes" in path_str or "totp" in path_str or "egress" in path_str) else "high",
                         "flaw_summary": op.get("description", f"Route {path_str} lacks explicit auth/tenant guard."),
-                        "remediation": "Add requireAdmin/requireRecent or X-Account-Id scoping and rate limiting.",
+                        "remediation": "Add admin-role and recent-auth checks, or X-Account-Id scoping and rate limiting.",
                     })
                     idx += 1
 
