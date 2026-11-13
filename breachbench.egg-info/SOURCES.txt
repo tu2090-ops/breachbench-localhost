@@ -1,6 +1,7 @@
 CHANGELOG.md
 LICENSE
 MANIFEST.in
+NOTICE
 README.md
 pyproject.toml
 setup.py
@@ -28,9 +29,6 @@ data/code_eval.json
 data/malware_eval.json
 data/phishing_eval.jsonl
 data/scenarios_eval.json
-data/hf/ih_challenge.jsonl
-data/hf/jbb_behaviors.jsonl
-data/hf/manifest.json
 data/schemas/api_finding_schema.json
 data/schemas/phishing_schema.json
 data/schemas/scenario_schema.json
@@ -42,3 +40,4 @@ samples/code/vulnerable_service.py
 samples/malware/benign_package.json
 samples/malware/suspicious_package.json
 tests/test_breachbench.py
+tests/test_memory_integration.py
