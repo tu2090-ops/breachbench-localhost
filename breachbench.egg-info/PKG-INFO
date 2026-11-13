@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: breachbench
-Version: 1.3.0
+Version: 0.0.3
 Summary: Open-source security benchmark, 3-layer Guardrail Shield, and static/dynamic scanner for AI agents, code vulnerabilities, malware lures, phishing, and OWASP API Top 10 flaws.
 Home-page: https://github.com/tu2090-ops/breachbench
 Author: Tanushree Umathe

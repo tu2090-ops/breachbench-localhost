@@ -145,7 +145,7 @@ def run_full_benchmark(
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
 
     report: Dict[str, Any] = {
-        "benchmark": "BreachBench v1.3 — Open-Source Agent, Guardrail Shield, Code, Malware, Phishing & API Security Suite",
+        "benchmark": "BreachBench v0.0.3 — Open-Source Agent, Guardrail Shield, Code, Malware, Phishing & API Security Suite",
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "llm_backend": llm_backend,
         "elapsed_ms": elapsed_ms,
