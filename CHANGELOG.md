@@ -2,6 +2,16 @@
 
 All notable changes to **BreachBench** are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Tinfoil CPU-only enclave** (`c178779`, `f8502d1`, `84f7254`): `Dockerfile.tinfoil`, `tinfoil-config.yml` (`cvm-version: 0.14.7`, 2 CPUs, 8 GiB, egress allowlist `inference.tinfoil.sh`), `tinfoil/server.py` HTTP wrapper (`/health`, `/run`, `/results`, `/results.md`), and GitHub Actions `tinfoil-release.yml` / `tinfoil-release-publish.yml`. Image fetches `scripts/hf_suite.py` samples at build time and calls Tinfoil private inference (`gemma4-31b`) at run time. Tag `v0.0.2` is the published CPU enclave; attestation verification is not yet successful (`vm_shape` error; bumping `cvm-version` to `0.14.10` is a hypothesized fix, not applied here).
+- **Optional Cognee memory retrieval** (`c9753e9`): `--use-memory` on `breachbench eval-agent` and `breachbench compare-shield`. Retrieves `SearchType.CHUNKS` from Cognee dataset `bb_smoke` (`top_k=3`) and appends the text to the task prompt before the Guardrail Shield, so it is treated as untrusted context. `_retrieve_context_from_memory` raises `RuntimeError` on import or search failure; `evaluate_agent` currently catches that, prints a warning, and continues without memory. Cognee is not a package dependency. Tests: `tests/test_memory_integration.py`.
+
+### Changed
+- **CI** (`c2208b6`, `dde66c4`): `.github/workflows/ci.yml` no longer runs `breachbench deploy-machines`. `scan-code` and `scan-malware` verification steps were restored. The `deploy-machines` CLI subcommand, permission gate, and unit tests remain.
+- **Documentation**: README, STEPS, ETHICS, and `docs/` updated to match the post-2026-11-07 tree (Tinfoil, memory flag, CI scope, CI badge repo `tu2090-ops/breachbench-localhost`). Shielded Ollama placeholder cells removed from the results table; only numbers that exist in tests or in this README are kept.
+
 ## [1.3.0] - 2026-10-27
 
 ### Added
