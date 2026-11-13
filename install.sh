@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # BreachBench Local & Multi-Machine Permission-Gated Installer
-# Copyright (c) 2026 Tanushree Umathe (MIT License)
+# Copyright 2026 Tanushree Umathe (Apache License 2.0)
 # ==============================================================================
 set -euo pipefail
 

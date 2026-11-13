@@ -11,6 +11,9 @@ All notable changes to **BreachBench** are documented in this file.
 ### Changed
 - **CI** (`c2208b6`, `dde66c4`): `.github/workflows/ci.yml` no longer runs `breachbench deploy-machines`. `scan-code` and `scan-malware` verification steps were restored. The `deploy-machines` CLI subcommand, permission gate, and unit tests remain.
 - **Documentation**: README, STEPS, ETHICS, and `docs/` updated to match the post-2026-11-07 tree (Tinfoil, memory flag, CI scope, CI badge repo `tu2090-ops/breachbench-localhost`). Shielded Ollama placeholder cells removed from the results table; only numbers that exist in tests or in this README are kept.
+- **README rewrite** for a first-time user (numbered quick start, mermaid architecture diagram, command table). Shield internals moved to `docs/shield.md`.
+- **Removed** the one-page LOCALHOST PDF that lived under `docs/` and every remaining link to it.
+- **License**: project relicensed from MIT to Apache License 2.0 (`LICENSE`, `NOTICE`, README badge, `pyproject.toml` / `setup.py` classifiers).
 
 ## [1.3.0] - 2026-10-27
 
