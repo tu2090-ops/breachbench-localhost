@@ -2,7 +2,9 @@
 
 **BreachBench finds the leak, then plugs it, and nothing leaves your machine.**
 
-BreachBench is a local security benchmark and 3-layer Guardrail Shield for AI agents, plus static scanners for vulnerable code, malware lures, phishing, and OWASP API issues. It was built for LOCALHOST (New York’s Sovereign AI Hackathon) by Tanushree Umathe. The default path runs on a machine with Ollama (for example a DGX Spark); models are scored and get no authority to change anything.
+BreachBench is a local security benchmark and 3-layer Guardrail Shield for AI agents, plus static scanners for vulnerable code, malware lures, phishing, and OWASP API issues. The default path runs on a machine with Ollama (for example a DGX Spark); models are scored and get no authority to change anything.
+
+> **Status:** Active, ongoing project — features and results are evolving. Contributions and issues welcome.
 
 [![CI](https://github.com/tu2090-ops/breachbench-localhost/actions/workflows/ci.yml/badge.svg)](https://github.com/tu2090-ops/breachbench-localhost/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
